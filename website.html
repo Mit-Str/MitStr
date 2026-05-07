@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Art Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #E8220A;
+      --yellow: #FFD600;
+      --blue:   #0057FF;
+      --white:  #FFFEF5;
+      --black:  #111111;
+      --green:  #00C94A;
+      --orange: #FF6B00;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--white);
+      color: var(--black);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 400;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      position: fixed;
+      width: 18px; height: 18px;
+      background: var(--red);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.15s, height 0.15s, background 0.15s;
+      mix-blend-mode: multiply;
+    }
+    .cursor.big { width: 48px; height: 48px; background: var(--yellow); }
+
+    /* ── HALFTONE BG ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 40px;
+      background: var(--blue);
+      border-bottom: 3px solid var(--black);
+    }
+
+    .logo-link { display: flex; align-items: center; text-decoration: none; cursor: none; }
+
+    .logo-wrapper {
+      width: 54px; height: 54px; border-radius: 50%; overflow: hidden;
+      border: 3px solid var(--black); background: var(--yellow);
+      position: relative; transition: transform 0.2s;
+      box-shadow: 4px 4px 0 var(--black);
+    }
+    .logo-wrapper:hover { transform: rotate(-8deg) scale(1.1); }
+    .logo-wrapper img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .logo-placeholder {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+      font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--black);
+    }
+    .logo-upload-hint {
+      position: absolute; inset: 0; background: rgba(255,214,0,0.88);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s; border-radius: 50%;
+      font-size: 8px; font-weight: 900; letter-spacing: 0.06em;
+      text-transform: uppercase; text-align: center; color: var(--black); cursor: none;
+    }
+    .logo-wrapper:hover .logo-upload-hint { opacity: 1; }
+    #logo-input { display: none; }
+
+    .site-name {
+      font-family: 'Bebas Neue', sans-serif; font-size: 26px;
+      color: var(--yellow); letter-spacing: 0.06em; margin-left: 16px;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+    }
+
+    nav { display: flex; gap: 8px; align-items: center; }
+    nav a {
+      text-decoration: none; font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 0.08em;
+      color: var(--white); padding: 6px 18px;
+      border: 2px solid transparent; transition: all 0.15s; cursor: none;
+    }
+    nav a:hover {
+      background: var(--yellow); color: var(--black);
+      border-color: var(--black); box-shadow: 3px 3px 0 var(--black);
+      transform: translate(-1px, -1px);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 110px 40px 60px; position: relative; overflow: hidden; z-index: 1;
+    }
+
+    .blob {
+      position: absolute; border-radius: 50%;
+      border: 3px solid var(--black); z-index: 0;
+      animation: blobFloat 6s ease-in-out infinite;
+    }
+    .blob-1 { width: 200px; height: 200px; background: var(--yellow); top: 12%; left: 5%; animation-delay: 0s; }
+    .blob-2 { width: 140px; height: 140px; background: var(--red);    top: 20%; right: 8%; animation-delay: 1s; }
+    .blob-3 { width: 100px; height: 100px; background: var(--green);  bottom: 18%; left: 10%; animation-delay: 2s; }
+    .blob-4 { width: 160px; height: 160px; background: var(--blue);   bottom: 15%; right: 6%; animation-delay: 0.5s; }
+    .blob-5 { width: 80px;  height: 80px;  background: var(--orange); top: 50%; left: 2%; animation-delay: 1.5s; }
+
+    @keyframes blobFloat {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      33%      { transform: translateY(-18px) rotate(5deg); }
+      66%      { transform: translateY(10px) rotate(-4deg); }
+    }
+
+    .hero-inner { position: relative; z-index: 2; text-align: center; }
+
+    .hero-tag {
+      display: inline-block; background: var(--red); color: var(--white);
+      font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 12px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 6px 18px; border: 2px solid var(--black); box-shadow: 3px 3px 0 var(--black);
+      margin-bottom: 28px; opacity: 0;
+      animation: popIn 0.5s 0.2s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 14vw, 180px);
+      line-height: 0.88; letter-spacing: 0.02em;
+      opacity: 0; animation: popIn 0.6s 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    .line-black { color: var(--black); }
+    .line-red   { color: var(--red);   -webkit-text-stroke: 3px var(--black); }
+    .line-blue  { color: var(--blue);  -webkit-text-stroke: 3px var(--black); }
+
+    .hero-subtitle {
+      font-size: 15px; font-weight: 700; letter-spacing: 0.06em;
+      margin-top: 24px; opacity: 0;
+      animation: popIn 0.5s 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 10px;
+      margin-top: 36px; font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; letter-spacing: 0.1em; text-decoration: none;
+      color: var(--black); background: var(--yellow);
+      border: 3px solid var(--black); box-shadow: 5px 5px 0 var(--black);
+      padding: 12px 32px; transition: all 0.15s; cursor: none;
+      opacity: 0; animation: popIn 0.5s 0.9s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    .hero-cta:hover { transform: translate(-3px,-3px); box-shadow: 8px 8px 0 var(--black); }
+
+    /* ── ABOUT ── */
+    #about {
+      position: relative; z-index: 1;
+      background: var(--yellow);
+      border-top: 3px solid var(--black); border-bottom: 3px solid var(--black);
+      padding: 80px 40px;
+    }
+
+    .about-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: auto 1fr;
+      gap: 60px; align-items: start;
+    }
+
+    .about-badge {
+      writing-mode: vertical-rl; text-orientation: mixed;
+      transform: rotate(180deg); font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px; letter-spacing: 0.06em; line-height: 1; user-select: none;
+    }
+
+    .about-label {
+      display: inline-block; background: var(--red); color: var(--white);
+      font-weight: 900; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 4px 14px; border: 2px solid var(--black); box-shadow: 3px 3px 0 var(--black);
+      margin-bottom: 20px;
+    }
+
+    .about-text {
+      font-size: 18px; line-height: 1.75; font-weight: 400;
+      max-width: 680px; outline: none; border: none; background: transparent;
+    }
+    .about-text:focus { outline: 3px dashed var(--black); outline-offset: 8px; }
+
+    .edit-hint {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.5; margin-top: 12px;
+    }
+
+    /* ── PORTFOLIO ── */
+    #portfolio { position: relative; z-index: 1; padding: 80px 40px 100px; }
+
+    .section-header {
+      max-width: 1300px; margin: 0 auto 48px;
+      display: flex; align-items: center; gap: 20px;
+    }
+
+    .section-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--blue); border: 3px solid var(--black);
+      box-shadow: 3px 3px 0 var(--black); flex-shrink: 0;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 6vw, 72px); letter-spacing: 0.04em;
+    }
+
+    /* ── GALLERY GRID ── */
+    .gallery-grid {
+      max-width: 1300px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    /* ── CARD ── */
+    .gallery-card {
+      border: 3px solid var(--black); background: var(--white);
+      cursor: none; box-shadow: 6px 6px 0 var(--black);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .gallery-card:hover { transform: translate(-4px,-4px); box-shadow: 10px 10px 0 var(--black); }
+
+    .card-stripe { height: 8px; }
+    .gallery-card:nth-child(4n+1) .card-stripe { background: var(--red); }
+    .gallery-card:nth-child(4n+2) .card-stripe { background: var(--blue); }
+    .gallery-card:nth-child(4n+3) .card-stripe { background: var(--green); }
+    .gallery-card:nth-child(4n+4) .card-stripe { background: var(--orange); }
+
+    .card-image-wrap {
+      aspect-ratio: 4/3; overflow: hidden; position: relative;
+      background: #eeece6; border-bottom: 3px solid var(--black);
+    }
+    .card-image-wrap img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.4s ease;
+    }
+    .gallery-card:hover .card-image-wrap img { transform: scale(1.07); }
+
+    .card-placeholder {
+      width: 100%; height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px; color: #bbb;
+    }
+    .card-placeholder svg { width: 36px; height: 36px; opacity: 0.4; }
+    .card-placeholder span { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .card-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,87,255,0.78); opacity: 0; transition: opacity 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-card:hover .card-overlay { opacity: 1; }
+    .card-overlay-text {
+      font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.1em;
+      color: var(--yellow); text-shadow: 2px 2px 0 var(--black);
+    }
+
+    .card-info {
+      padding: 16px 20px 8px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.06em; }
+    .card-num { font-size: 11px; font-weight: 900; letter-spacing: 0.1em; color: #bbb; }
+
+    .card-actions { display: flex; gap: 6px; padding: 8px 20px 16px; flex-wrap: wrap; }
+    .card-btn {
+      font-family: 'Nunito', sans-serif; font-size: 10px; font-weight: 900;
+      letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 14px;
+      border: 2px solid var(--black); background: var(--white); color: var(--black);
+      cursor: none; box-shadow: 2px 2px 0 var(--black); transition: all 0.12s;
+    }
+    .card-btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--black); }
+    .card-btn.blue { background: var(--blue); color: var(--white); }
+    .card-btn.red  { background: var(--red);  color: var(--white); }
+
+    /* ── ADD CARD ── */
+    .add-card-wrap { display: flex; }
+    .add-category-btn {
+      width: 100%; min-height: 280px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.1em;
+      border: 3px dashed var(--black); background: transparent; cursor: none;
+      transition: all 0.15s;
+    }
+    .add-category-btn:hover {
+      background: var(--yellow); border-style: solid;
+      box-shadow: 6px 6px 0 var(--black); transform: translate(-3px,-3px);
+    }
+    .add-category-btn svg { width: 36px; height: 36px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black); color: var(--white);
+      padding: 36px 40px; display: flex; align-items: center; justify-content: space-between;
+      border-top: 3px solid var(--black); position: relative; z-index: 1;
+    }
+    footer p { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.1em; color: var(--yellow); }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--white); border: 3px solid var(--black);
+      box-shadow: 10px 10px 0 var(--black); padding: 40px;
+      width: 460px; max-width: 92vw;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+
+    .modal-stripe { height: 8px; margin: -40px -40px 32px; }
+
+    .modal h3 {
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px;
+      letter-spacing: 0.06em; margin-bottom: 28px;
+    }
+    .modal label {
+      display: block; font-size: 10px; font-weight: 900;
+      letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px; color: #555;
+    }
+    .modal input[type="text"], .modal input[type="file"] {
+      width: 100%; border: 2px solid var(--black); background: var(--white);
+      padding: 10px 14px; font-family: 'Nunito', sans-serif;
+      font-size: 15px; font-weight: 700; color: var(--black);
+      margin-bottom: 20px; outline: none; box-shadow: 3px 3px 0 var(--black);
+      transition: box-shadow 0.15s;
+    }
+    .modal input:focus { box-shadow: 5px 5px 0 var(--blue); border-color: var(--blue); }
+    .modal-actions { display: flex; gap: 12px; margin-top: 8px; }
+
+    .btn {
+      font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.1em;
+      padding: 10px 28px; border: 2px solid var(--black); cursor: none;
+      box-shadow: 4px 4px 0 var(--black); transition: all 0.12s;
+    }
+    .btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); }
+    .btn-primary { background: var(--blue); color: var(--white); }
+    .btn-ghost   { background: var(--white); color: var(--black); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.7) translateY(20px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0); }
+    }
+    .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      header { padding: 14px 20px; }
+      .about-inner { grid-template-columns: 1fr; gap: 24px; }
+      .about-badge { writing-mode: horizontal-tb; transform: none; font-size: 40px; }
+      #about, #portfolio { padding: 60px 20px; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- HEADER -->
+<header>
+  <a class="logo-link" href="index.html">
+    <div class="logo-wrapper" id="logoWrapper">
+      <div class="logo-placeholder" id="logoPlaceholder">★</div>
+      <img id="logoImg" src="" alt="Logo" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
+      <div class="logo-upload-hint" id="logoUploadHint">Upload<br>Logo</div>
+    </div>
+    <span class="site-name">My Portfolio</span>
+  </a>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#portfolio">Portfolio</a>
+  </nav>
+</header>
+<input type="file" id="logo-input" accept="image/*" />
+
+<!-- HERO -->
+<section class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+  <div class="blob blob-5"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">✦ Welcome to My World ✦</div>
+    <div class="hero-title">
+      <div class="line-black">MY</div>
+      <div class="line-red">ART</div>
+      <div class="line-blue">PORTFOLIO</div>
+    </div>
+    <p class="hero-subtitle">Original Works · Mixed Media · Illustration · &amp; More</p>
+    <a href="#portfolio" class="hero-cta">Explore My Work ↓</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-inner fade-up">
+    <div class="about-badge">ABOUT</div>
+    <div>
+      <div class="about-label">✦ The Artist</div>
+      <div class="about-text" contenteditable="true" spellcheck="false">Hi! I'm an artist who loves bold color, playful shapes, and telling stories through imagery. Click here to write your own about section — tell the world who you are, what inspires you, and what kind of art you make. This is your space, make it yours!</div>
+      <p class="edit-hint">✏ Click above to edit</p>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="section-header fade-up">
+    <div class="section-dot"></div>
+    <h2 class="section-title">My Work</h2>
+  </div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© <span id="year"></span> All Rights Reserved</p>
+  <div class="footer-logo">Art Portfolio ★</div>
+  <p>Made with ❤</p>
+</footer>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-stripe" style="background:var(--red)"></div>
+    <h3>New Category</h3>
+    <label>Category Name</label>
+    <input type="text" id="catName" placeholder="e.g. Oil Paintings" />
+    <label>Cover Image (optional)</label>
+    <input type="file" id="catImage" accept="image/*" />
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="confirmAdd">Create ✦</button>
+      <button class="btn btn-ghost"   id="cancelAdd">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- RENAME MODAL -->
+<div class="modal-overlay" id="renameOverlay">
+  <div class="modal">
+    <div class="modal-stripe" style="background:var(--green)"></div>
+    <h3>Rename</h3>
+    <label>New Name</label>
+    <input type="text" id="renameInput" placeholder="Category name" />
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="confirmRename">Save</button>
+      <button class="btn btn-ghost"   id="cancelRename">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  function bindCursorHover(el) {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  }
+  document.querySelectorAll('a, button, .logo-wrapper').forEach(bindCursorHover);
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Scroll fade
+  const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.1});
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+
+  // Logo upload
+  document.getElementById('logoUploadHint').addEventListener('click', e => {
+    e.preventDefault(); e.stopPropagation();
+    document.getElementById('logo-input').click();
+  });
+  document.getElementById('logo-input').addEventListener('change', e => {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      const img = document.getElementById('logoImg');
+      img.src = ev.target.result; img.style.display = 'block';
+      document.getElementById('logoPlaceholder').style.display = 'none';
+    };
+    r.readAsDataURL(file);
+  });
+
+  // Data
+  const load = () => { try { return JSON.parse(localStorage.getItem('portfolioCategories')) || []; } catch { return []; } };
+  const save = cats => localStorage.setItem('portfolioCategories', JSON.stringify(cats));
+
+  const stripes = ['var(--red)','var(--blue)','var(--green)','var(--orange)'];
+
+  function renderGrid() {
+    const cats = load();
+    const grid = document.getElementById('galleryGrid');
+    grid.innerHTML = '';
+
+    cats.forEach((cat, i) => {
+      const card = document.createElement('div');
+      card.className = 'gallery-card fade-up';
+      card.innerHTML = `
+        <div class="card-stripe" style="background:${stripes[i % stripes.length]}"></div>
+        <div class="card-image-wrap">
+          ${cat.cover
+            ? `<img src="${cat.cover}" alt="${cat.name}" />`
+            : `<div class="card-placeholder">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <span>No cover yet</span>
+               </div>`}
+          <div class="card-overlay"><span class="card-overlay-text">View Collection →</span></div>
+        </div>
+        <div class="card-info">
+          <span class="card-title">${cat.name}</span>
+          <span class="card-num">${String(i+1).padStart(2,'0')}</span>
+        </div>
+        <div class="card-actions">
+          <button class="card-btn blue open-btn"  data-id="${i}">Open</button>
+          <button class="card-btn cover-btn"       data-id="${i}">Cover</button>
+          <button class="card-btn rename-btn"      data-id="${i}">Rename</button>
+          <button class="card-btn red delete-btn"  data-id="${i}">Delete</button>
+        </div>`;
+      grid.appendChild(card);
+      setTimeout(() => { card.classList.add('visible'); obs.observe(card); }, i * 80);
+
+      card.querySelector('.open-btn').addEventListener('click', () => { localStorage.setItem('currentCategory', i); window.location.href='gallery.html'; });
+      card.querySelector('.card-image-wrap').addEventListener('click', () => { localStorage.setItem('currentCategory', i); window.location.href='gallery.html'; });
+      card.querySelector('.cover-btn').addEventListener('click', () => pickCover(i));
+      card.querySelector('.rename-btn').addEventListener('click', () => openRename(i));
+      card.querySelector('.delete-btn').addEventListener('click', () => {
+        if (confirm('Delete this category?')) { const c=load(); c.splice(i,1); save(c); renderGrid(); }
+      });
+      card.querySelectorAll('button').forEach(bindCursorHover);
+    });
+
+    const addWrap = document.createElement('div');
+    addWrap.className = 'add-card-wrap';
+    addWrap.innerHTML = `<button class="add-category-btn" id="addCatBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>Add Category</button>`;
+    grid.appendChild(addWrap);
+    const btn = document.getElementById('addCatBtn');
+    btn.addEventListener('click', openModal);
+    bindCursorHover(btn);
+  }
+
+  function pickCover(idx) {
+    const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+    inp.addEventListener('change', () => {
+      const file = inp.files[0]; if(!file) return;
+      const r = new FileReader();
+      r.onload = e => { const c=load(); c[idx].cover=e.target.result; save(c); renderGrid(); };
+      r.readAsDataURL(file);
+    });
+    inp.click();
+  }
+
+  function openModal() { document.getElementById('modalOverlay').classList.add('open'); document.getElementById('catName').focus(); }
+  document.getElementById('cancelAdd').addEventListener('click', () => document.getElementById('modalOverlay').classList.remove('open'));
+  document.getElementById('confirmAdd').addEventListener('click', () => {
+    const name = document.getElementById('catName').value.trim(); if(!name) return;
+    const file = document.getElementById('catImage').files[0];
+    const finish = cover => {
+      const c=load(); c.push({name, cover:cover||'', images:[]}); save(c);
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.getElementById('catName').value=''; document.getElementById('catImage').value='';
+      renderGrid();
+    };
+    if(file){ const r=new FileReader(); r.onload=e=>finish(e.target.result); r.readAsDataURL(file); } else finish('');
+  });
+
+  let renameIdx=null;
+  function openRename(idx) {
+    renameIdx=idx; document.getElementById('renameInput').value=load()[idx].name;
+    document.getElementById('renameOverlay').classList.add('open'); document.getElementById('renameInput').focus();
+  }
+  document.getElementById('cancelRename').addEventListener('click', () => document.getElementById('renameOverlay').classList.remove('open'));
+  document.getElementById('confirmRename').addEventListener('click', () => {
+    const val=document.getElementById('renameInput').value.trim(); if(!val) return;
+    const c=load(); c[renameIdx].name=val; save(c);
+    document.getElementById('renameOverlay').classList.remove('open'); renderGrid();
+  });
+  ['modalOverlay','renameOverlay'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+  });
+
+  renderGrid();
+</script>
+</body>
+</html>
