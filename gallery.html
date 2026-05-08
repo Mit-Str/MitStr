@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gallery — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #E8220A;
+      --yellow: #FFD600;
+      --blue:   #0057FF;
+      --white:  #FFFEF5;
+      --black:  #111111;
+      --green:  #00C94A;
+      --orange: #FF6B00;
+    }
+
+    body {
+      background: var(--white); color: var(--black);
+      font-family: 'Nunito', sans-serif; font-weight: 400;
+      overflow-x: hidden; cursor: none;
+    }
+
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 22px 22px; pointer-events: none; z-index: 0;
+    }
+
+    /* ── CURSOR ── */
+    .cursor {
+      position: fixed; width: 18px; height: 18px;
+      background: var(--blue); border-radius: 50%;
+      pointer-events: none; z-index: 99999;
+      transform: translate(-50%,-50%);
+      transition: width 0.15s, height 0.15s, background 0.15s;
+      mix-blend-mode: multiply;
+    }
+    .cursor.big { width: 48px; height: 48px; background: var(--yellow); }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed; top:0; left:0; right:0; z-index:200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 40px; background: var(--red); border-bottom: 3px solid var(--black);
+    }
+
+    .logo-link { display: flex; align-items: center; text-decoration: none; cursor: none; }
+
+    .logo-wrapper {
+      width: 54px; height: 54px; border-radius: 50%; overflow: hidden;
+      border: 3px solid var(--black); background: var(--yellow);
+      position: relative; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s; box-shadow: 4px 4px 0 var(--black);
+    }
+    .logo-wrapper:hover { transform: rotate(-8deg) scale(1.1); }
+    .logo-wrapper img { width:100%; height:100%; object-fit:cover; display:block; }
+    .logo-placeholder {
+      font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--black);
+    }
+
+    .back-link {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.08em;
+      color: var(--white); text-decoration: none; padding: 6px 18px;
+      border: 2px solid transparent; transition: all 0.15s; cursor: none;
+    }
+    .back-link:hover {
+      background: var(--yellow); color: var(--black);
+      border-color: var(--black); box-shadow: 3px 3px 0 var(--black);
+      transform: translate(-1px,-1px);
+    }
+    .back-link svg { width: 16px; height: 16px; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      padding: 130px 40px 50px; max-width: 1300px; margin: 0 auto;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+      border-bottom: 3px solid var(--black); margin-bottom: 56px;
+    }
+
+    .page-title-wrap { display: flex; align-items: center; gap: 16px; }
+
+    .title-swatch {
+      width: 36px; height: 36px;
+      border: 3px solid var(--black); box-shadow: 3px 3px 0 var(--black);
+      flex-shrink: 0;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 7vw, 80px); letter-spacing: 0.04em; line-height: 1;
+    }
+
+    .page-count {
+      font-size: 11px; font-weight: 900; letter-spacing: 0.2em;
+      text-transform: uppercase; color: #999; padding-bottom: 6px;
+    }
+
+    /* ── UPLOAD BAR ── */
+    .upload-bar {
+      max-width: 1300px; margin: 0 auto 40px; padding: 0 40px;
+    }
+
+    .upload-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.1em;
+      color: var(--black); background: var(--yellow);
+      border: 3px solid var(--black); box-shadow: 5px 5px 0 var(--black);
+      padding: 12px 28px; cursor: none; transition: all 0.15s;
+    }
+    .upload-btn:hover { transform: translate(-3px,-3px); box-shadow: 8px 8px 0 var(--black); }
+    .upload-btn svg { width: 20px; height: 20px; }
+
+    /* ── MASONRY ── */
+    .masonry-container { max-width: 1300px; margin: 0 auto; padding: 0 40px 100px; }
+    .masonry-grid { columns: 3; column-gap: 20px; }
+    @media (max-width: 1000px) { .masonry-grid { columns: 2; } }
+    @media (max-width: 600px)  { .masonry-grid { columns: 1; } }
+
+    /* ── IMAGE CARD ── */
+    .img-card {
+      break-inside: avoid; margin-bottom: 20px;
+      border: 3px solid var(--black); background: var(--white);
+      box-shadow: 5px 5px 0 var(--black);
+      cursor: none; overflow: hidden; position: relative;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s, box-shadow 0.15s, transform 0.15s;
+    }
+    .img-card.visible { opacity: 1; transform: translateY(0); }
+    .img-card:hover { transform: translateY(-4px); box-shadow: 8px 8px 0 var(--black); }
+
+    /* Color top stripe cycling */
+    .img-card::before {
+      content: ''; display: block; height: 6px;
+      background: var(--card-color, var(--blue));
+    }
+
+    .img-card img { width: 100%; display: block; transition: transform 0.4s ease; }
+    .img-card:hover img { transform: scale(1.04); }
+
+    .img-overlay {
+      position: absolute; inset: 0; top: 6px;
+      background: rgba(232,34,10,0.75); opacity: 0; transition: opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .img-card:hover .img-overlay { opacity: 1; }
+
+    .overlay-btn {
+      font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.1em;
+      padding: 8px 20px; border: 2px solid var(--white);
+      background: transparent; color: var(--white); cursor: none; transition: all 0.15s;
+    }
+    .overlay-btn:hover { background: var(--white); color: var(--black); border-color: var(--black); }
+    .overlay-btn.danger:hover { background: var(--black); color: var(--white); }
+
+    /* ── ADD CARD ── */
+    .add-img-card {
+      break-inside: avoid; margin-bottom: 20px;
+      border: 3px dashed var(--black); min-height: 200px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 14px; cursor: none;
+      transition: all 0.15s; color: #aaa;
+    }
+    .add-img-card:hover {
+      background: var(--yellow); border-style: solid;
+      box-shadow: 5px 5px 0 var(--black); color: var(--black);
+      transform: translate(-3px,-3px);
+    }
+    .add-img-card svg { width: 32px; height: 32px; }
+    .add-img-card span { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.1em; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      column-span: all; break-inside: avoid;
+      text-align: center; padding: 80px 20px;
+    }
+    .empty-state p {
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px;
+      letter-spacing: 0.06em; color: #ccc; margin-bottom: 8px;
+    }
+    .empty-state small {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; color: #bbb;
+    }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(17,11,8,0.97);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-img {
+      max-width: 88vw; max-height: 88vh; object-fit: contain;
+      border: 3px solid var(--yellow); box-shadow: 8px 8px 0 var(--yellow);
+      transform: scale(0.94); transition: transform 0.3s;
+    }
+    .lightbox.open .lightbox-img { transform: scale(1); }
+
+    .lightbox-close {
+      position: absolute; top: 24px; right: 32px;
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.1em;
+      background: var(--yellow); color: var(--black);
+      border: 3px solid var(--black); box-shadow: 4px 4px 0 var(--black);
+      padding: 4px 16px; cursor: none; transition: all 0.15s;
+    }
+    .lightbox-close:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); }
+
+    .lightbox-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px;
+      background: var(--white); color: var(--black);
+      border: 3px solid var(--black); box-shadow: 4px 4px 0 var(--black);
+      width: 56px; height: 56px; display: flex; align-items: center; justify-content: center;
+      cursor: none; transition: all 0.15s;
+    }
+    .lightbox-nav:hover { background: var(--yellow); transform: translateY(-50%) translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); }
+    .lightbox-prev { left: 24px; }
+    .lightbox-next { right: 24px; }
+
+    .lightbox-counter {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 0.14em;
+      color: var(--yellow);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black); color: var(--white);
+      padding: 28px 40px; display: flex; align-items: center; justify-content: space-between;
+      border-top: 3px solid var(--black); position: relative; z-index: 1;
+    }
+    footer a { color: var(--yellow); text-decoration: none; font-weight: 700; }
+    footer p { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+
+    @media (max-width: 768px) {
+      header { padding: 14px 20px; }
+      .page-header, .upload-bar, .masonry-container { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- HEADER -->
+<header>
+  <a class="logo-link" href="index.html">
+    <div class="logo-wrapper" id="logoWrapper">
+      <div class="logo-placeholder" id="logoPlaceholder">★</div>
+      <img id="logoImg" src="" alt="Logo" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover;" />
+    </div>
+  </a>
+  <a href="index.html" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
+    </svg>
+    Back to Portfolio
+  </a>
+</header>
+
+<!-- PAGE HEADER -->
+<div class="page-header" id="pageHeader" style="max-width:1300px; margin-left:auto; margin-right:auto;">
+  <div class="page-title-wrap">
+    <div class="title-swatch" id="titleSwatch"></div>
+    <h1 class="page-title" id="pageTitle">Gallery</h1>
+  </div>
+  <span class="page-count" id="pageCount">0 works</span>
+</div>
+
+<!-- UPLOAD BAR -->
+<div class="upload-bar">
+  <button class="upload-btn" id="uploadBtnTop">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
+    Add Images
+  </button>
+</div>
+
+<!-- MASONRY -->
+<div class="masonry-container">
+  <div class="masonry-grid" id="masonryGrid"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>← <a href="index.html">Back to Portfolio</a></p>
+  <p>© <span id="year"></span></p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lbClose">✕ CLOSE</button>
+  <button class="lightbox-nav lightbox-prev" id="lbPrev">‹</button>
+  <img class="lightbox-img" id="lbImg" src="" alt="" />
+  <button class="lightbox-nav lightbox-next" id="lbNext">›</button>
+  <div class="lightbox-counter" id="lbCounter"></div>
+</div>
+
+<input type="file" id="imageInput" accept="image/*" multiple style="display:none" />
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  function bindHover(el) {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  }
+  document.querySelectorAll('a, button, .logo-wrapper').forEach(bindHover);
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const load = () => { try { return JSON.parse(localStorage.getItem('portfolioCategories')) || []; } catch { return []; } };
+  const save = cats => localStorage.setItem('portfolioCategories', JSON.stringify(cats));
+
+  const catIdx = Number(localStorage.getItem('currentCategory') || 0);
+  const swatchColors = ['#E8220A','#0057FF','#00C94A','#FF6B00'];
+
+  // Set swatch color
+  document.getElementById('titleSwatch').style.background = swatchColors[catIdx % swatchColors.length];
+
+  let lightboxImages = [];
+  let lightboxCurrent = 0;
+
+  function renderGallery() {
+    const cat = load()[catIdx] || { name: 'Gallery', images: [] };
+    document.title = cat.name + ' — Portfolio';
+    document.getElementById('pageTitle').textContent = cat.name;
+
+    const imgs = cat.images || [];
+    lightboxImages = imgs;
+    document.getElementById('pageCount').textContent = imgs.length + (imgs.length === 1 ? ' work' : ' works');
+
+    const grid = document.getElementById('masonryGrid');
+    grid.innerHTML = '';
+
+    const imgColors = ['var(--red)','var(--blue)','var(--green)','var(--orange)','var(--yellow)'];
+
+    if (imgs.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.innerHTML = `<p>No works yet!</p><small>Click "Add Images" to get started</small>`;
+      grid.appendChild(empty);
+    }
+
+    imgs.forEach((src, i) => {
+      const card = document.createElement('div');
+      card.className = 'img-card';
+      card.style.setProperty('--card-color', imgColors[i % imgColors.length]);
+      card.innerHTML = `
+        <img src="${src}" alt="Artwork ${i+1}" loading="lazy" />
+        <div class="img-overlay">
+          <button class="overlay-btn view-btn" data-idx="${i}">View</button>
+          <button class="overlay-btn danger del-btn" data-idx="${i}">Remove</button>
+        </div>`;
+      grid.appendChild(card);
+      setTimeout(() => card.classList.add('visible'), i * 55);
+
+      card.querySelector('.view-btn').addEventListener('click', e => { e.stopPropagation(); openLightbox(i); });
+      card.querySelector('.del-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        if (confirm('Remove this image?')) {
+          const c = load(); c[catIdx].images.splice(i, 1); save(c); renderGallery();
+        }
+      });
+      card.querySelector('img').addEventListener('click', () => openLightbox(i));
+      card.querySelectorAll('button').forEach(bindHover);
+    });
+
+    // Add button card
+    const addCard = document.createElement('div');
+    addCard.className = 'add-img-card';
+    addCard.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span>Add Images</span>`;
+    addCard.addEventListener('click', () => document.getElementById('imageInput').click());
+    grid.appendChild(addCard);
+    bindHover(addCard);
+  }
+
+  // Upload
+  document.getElementById('uploadBtnTop').addEventListener('click', () => document.getElementById('imageInput').click());
+  document.getElementById('imageInput').addEventListener('change', e => {
+    const files = Array.from(e.target.files); if (!files.length) return;
+    let loaded = 0;
+    const c = load();
+    if (!c[catIdx].images) c[catIdx].images = [];
+    files.forEach(file => {
+      const r = new FileReader();
+      r.onload = ev => {
+        c[catIdx].images.push(ev.target.result); loaded++;
+        if (loaded === files.length) { save(c); renderGallery(); }
+      };
+      r.readAsDataURL(file);
+    });
+    e.target.value = '';
+  });
+
+  // Lightbox
+  function openLightbox(idx) {
+    lightboxCurrent = idx; updateLightbox();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function updateLightbox() {
+    document.getElementById('lbImg').src = lightboxImages[lightboxCurrent];
+    document.getElementById('lbCounter').textContent = (lightboxCurrent+1) + ' / ' + lightboxImages.length;
+  }
+
+  document.getElementById('lbClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox').addEventListener('click', e => { if(e.target===document.getElementById('lightbox')) closeLightbox(); });
+  document.getElementById('lbPrev').addEventListener('click', () => { lightboxCurrent=(lightboxCurrent-1+lightboxImages.length)%lightboxImages.length; updateLightbox(); });
+  document.getElementById('lbNext').addEventListener('click', () => { lightboxCurrent=(lightboxCurrent+1)%lightboxImages.length; updateLightbox(); });
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('lightbox').classList.contains('open')) return;
+    if (e.key==='Escape') closeLightbox();
+    if (e.key==='ArrowLeft') { lightboxCurrent=(lightboxCurrent-1+lightboxImages.length)%lightboxImages.length; updateLightbox(); }
+    if (e.key==='ArrowRight') { lightboxCurrent=(lightboxCurrent+1)%lightboxImages.length; updateLightbox(); }
+  });
+
+  renderGallery();
+</script>
+</body>
+</html>
